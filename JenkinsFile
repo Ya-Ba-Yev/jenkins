@@ -1,0 +1,52 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo "pulling the code from the pool"
+                checkout scm
+            }
+        }
+
+        stage('Install') {
+            steps {
+                echo "Installing dependicies"
+                sh "npm ci"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "Running test's if a gretting is empty - it will fail"
+                sh "npm test"
+            }
+        }
+
+        stage('Build_Image') {
+            steps {
+                echo "Building a docker image"
+                sh 'docker build -t jenkins:${BUILD_NUMBER} -t jenkins:latest .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploy the new version on port 7001"
+                sh 'docker run -d --name greets-live -p 7001:7000 jenkins:latest'
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "The Pipeline succeded"
+        }
+        failure {
+            echo "The Pipeline failed :("
+        }
+    }
+}
