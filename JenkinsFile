@@ -35,7 +35,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploy the new version on port 7001"
-                docker rm -f greets-live
+                sh 'docker rm -f greets-live'
                 sh 'docker run -d --name greets-live -p 7001:7000 jenkins:latest'
             }
         }
